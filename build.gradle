@@ -1,0 +1,24 @@
+plugins {
+  id 'fabric-loom' version '1.10-SNAPSHOT'
+  id 'maven-publish'
+}
+version = "1.0.0"
+
+repositories {
+  mavenCentral()
+  maven {url "https://maven.impactdev.net/repository/development/"}
+}
+dependencies {
+  minecraft "net.minecraft:minecraft:1.21.1"
+  mappings "net.fabricmc:yarn:1.21.1+build.3:v2"
+  implementation include("org.xerial:sqlite-jdbc:3.47.2.0")
+  modImplementation "net.fabricmc:fabric-loader:0.16.10"
+  modImplementation "net.fabricmc.fabric-api:fabric-api:0.115.1+1.21.1"
+  modImplementation "com.cobblemon:fabric:1.6.0+1.21.1-SNAPSHOT"
+  modImplementation "ca.landonjw.gooeylibs:fabric-api-repack:3.1.0-1.21.1-SNAPSHOT"
+  modImplementation "me.lucko:fabric-permissions-api:0.3.1"
+}
+tasks.withType(JavaCompile) {
+  options.encoding = "UTF-8"
+  options.release = 21
+}

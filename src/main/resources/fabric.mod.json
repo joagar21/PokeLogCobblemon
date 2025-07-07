@@ -1,0 +1,22 @@
+{
+	"schemaVersion": 1,
+	"id": "pokelog",
+	"version": "1.0.0",
+	"name": "PokeLog",
+	"description": "A fabric plugin.",
+	"authors": ["joagar"],
+	"contact": {
+      "discord": "https://discord.gg/764EeQh"
+	},
+	"environment": "server",
+	"entrypoints": {
+      "main": ["io.github.joagar21.pokelog.PokeLog"]
+	},
+	"depends": {
+      "fabricloader": ">=0.16.10",
+	  "minecraft": "~1.21.1",
+	  "java": ">=21",
+	  "fabric-api": "*",
+	  "fabric-permissions-api-v0": "*"
+	}
+}
