@@ -100,4 +100,34 @@ public class LogFormat {
       this.properties = properties;
     }
   }
+  public static class ReleaseFormat {
+    
+    private long time;
+    private String player;
+    private String properties;
+    
+    public ReleaseFormat(long time, String player, String properties) {
+      this.time = time;
+      this.player = player;
+      this.properties = properties;
+    }
+    public long getTime() {
+      return time;
+    }
+    public void setTime(long time) {
+      this.time = time;
+    }
+    public String getPlayer() {
+      return player;
+    }
+    public void setPlayer(String player) {
+      this.player = player;
+    }
+    public String getProperties() {
+      return properties;
+    }
+    public void setProperties(String properties) {
+      this.properties = properties;
+    }
+  }
 }

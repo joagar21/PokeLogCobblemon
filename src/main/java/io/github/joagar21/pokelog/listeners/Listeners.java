@@ -14,6 +14,16 @@ public class Listeners {
 
   public static void register() {
     
+    CobblemonEvents.POKEMON_RELEASED_EVENT_POST.subscribe(Priority.NORMAL, event -> {
+      String player = event.getPlayer().getUuidAsString();
+      
+      if (!Main.INSTANCE.PlayerWhitelist.contains(player)) {
+         String properties = event.getPokemon().createPokemonProperties(PokemonPropertyExtractor.ALL).asString(" ");
+         Concurrency.runAsync(() -> PokeLog.getDatabase().addReleaseLog(player, properties));
+      }
+      return Unit.INSTANCE;
+    });
+    
     CobblemonEvents.POKEMON_CAPTURED.subscribe(Priority.NORMAL, event -> {
       String player = event.getPlayer().getUuidAsString();
       

@@ -43,6 +43,7 @@ public class Base {
                 builder.suggest("capture");
                 builder.suggest("hatch");
                 builder.suggest("trade");
+                builder.suggest("release");
                 return builder.buildFuture();
               })
             .executes(Clear::execute)))
@@ -55,6 +56,7 @@ public class Base {
                 builder.suggest("capture");
                 builder.suggest("hatch");
                 builder.suggest("trade");
+                builder.suggest("release");
                 return builder.buildFuture();
               })
             .then(CommandManager.argument("filterPlayer", StringArgumentType.string())

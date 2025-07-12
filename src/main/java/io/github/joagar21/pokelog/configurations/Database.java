@@ -15,6 +15,7 @@ import com.google.common.collect.Lists;
 import io.github.joagar21.pokelog.PokeLog;
 import io.github.joagar21.pokelog.utilities.LogFormat.CaptureFormat;
 import io.github.joagar21.pokelog.utilities.LogFormat.HatchFormat;
+import io.github.joagar21.pokelog.utilities.LogFormat.ReleaseFormat;
 import io.github.joagar21.pokelog.utilities.LogFormat.TradeFormat;
 import io.github.joagar21.pokelog.utilities.Utilities;
 
@@ -70,6 +71,16 @@ public class Database {
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to create trade table: "+ e);
     }
+    
+    try (Statement statement = connection.createStatement()) {
+        statement.execute("CREATE TABLE IF NOT EXISTS release (" +
+        "time INTEGER, " +
+        "player TEXT, " +
+        "properties TEXT, " +
+        "PRIMARY KEY (time, player, properties))");
+    } catch (SQLException e) {
+        PokeLog.getLogger().error("Failed to create release table: "+ e);
+    }
   }
   public void addCaptureLog(String player, String properties) {
     
@@ -103,6 +114,17 @@ public class Database {
         preparedStatement.executeUpdate();
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to add trade log for the player "+ player +": "+ e);
+    }
+  }
+  public void addReleaseLog(String player, String properties) {
+    
+    try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO release (time, player, properties) VALUES (?, ?, ?)")) {
+        preparedStatement.setLong(1, System.currentTimeMillis());
+        preparedStatement.setString(2, player);
+        preparedStatement.setString(3, properties);
+        preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+        PokeLog.getLogger().error("Failed to add release log for the player "+ player +": "+ e);
     }
   }
   public List<CaptureFormat> getCaptureLogs(String filterPlayer, String[] filterProperties) {
@@ -168,6 +190,28 @@ public class Database {
         }
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to get trade logs: "+ e);
+    }
+    return list;
+  }
+  public List<ReleaseFormat> getReleaseLogs(String filterPlayer, String[] filterProperties) {
+    
+    String statement = "SELECT * FROM release ORDER BY time DESC";
+    if (!filterPlayer.equals("all")) statement = "SELECT * FROM release WHERE player = ? ORDER BY time DESC";
+    
+    List<ReleaseFormat> list = Lists.newArrayList();
+    boolean checkProperties = filterProperties[0].equals("all") ? false : true;
+    
+    try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
+        if (!filterPlayer.equals("all")) preparedStatement.setString(1, filterPlayer);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        
+        while (resultSet.next()) {
+          String properties = resultSet.getString("properties");
+          if (checkProperties && !Utilities.hasProperties(properties, filterProperties)) continue;
+          list.add(new ReleaseFormat(resultSet.getLong("time"), resultSet.getString("player"), properties)); 
+        }
+    } catch (SQLException e) {
+        PokeLog.getLogger().error("Failed to get release logs: "+ e);
     }
     return list;
   }

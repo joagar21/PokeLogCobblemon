@@ -38,6 +38,7 @@ import io.github.joagar21.pokelog.configurations.UIConfiguration;
 import io.github.joagar21.pokelog.configurations.UIConfiguration.UserInterfaceFormat;
 import io.github.joagar21.pokelog.utilities.LogFormat.CaptureFormat;
 import io.github.joagar21.pokelog.utilities.LogFormat.HatchFormat;
+import io.github.joagar21.pokelog.utilities.LogFormat.ReleaseFormat;
 import io.github.joagar21.pokelog.utilities.LogFormat.TradeFormat;
 
 import net.minecraft.item.ItemStack;
@@ -129,6 +130,23 @@ public class UserInterface {
            .display(ItemStackBuilder.builder()
              .stack(PokemonItem.from(pokemon))
              .name(UIConfiguration.INSTANCE.TradeLogPokemonSpriteTitle.replace("%player%", Utilities.getPlayerNameByUUID(format.getPlayer())).replace("%traded_to%", Utilities.getPlayerNameByUUID(format.getTradedTo())).replace("%date%", dateFormat.format(new Date(format.getTime()))))
+             .lore(UIConfiguration.INSTANCE.PokemonSpriteLore.stream().map(s -> parsePokemonPlaceholders(s, pokemon)).toList())
+             .build())
+           .onClick(() -> {
+             UIManager.closeUI(player);
+             Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
+           })
+           .build());
+       }
+    }
+    else if (type.equals("release")) {
+       for (ReleaseFormat format : PokeLog.getDatabase().getReleaseLogs(filterPlayer, filterProperties.split(" "))) {
+           Pokemon pokemon = PokemonProperties.Companion.parse(format.getProperties()).create();
+           
+           buttons.add(GooeyButton.builder()
+           .display(ItemStackBuilder.builder()
+             .stack(PokemonItem.from(pokemon))
+             .name(UIConfiguration.INSTANCE.LogPokemonSpriteTitle.replace("%player%", Utilities.getPlayerNameByUUID(format.getPlayer())).replace("%date%", dateFormat.format(new Date(format.getTime()))))
              .lore(UIConfiguration.INSTANCE.PokemonSpriteLore.stream().map(s -> parsePokemonPlaceholders(s, pokemon)).toList())
              .build())
            .onClick(() -> {

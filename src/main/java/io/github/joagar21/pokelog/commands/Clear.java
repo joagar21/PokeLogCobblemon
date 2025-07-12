@@ -16,11 +16,11 @@ public class Clear {
     
     String type = StringArgumentType.getString(command, "type");
     
-    if (!type.equals("capture") && !type.equals("hatch") && !type.equals("trade")) {
-       Utilities.sendMessage(command.getSource(), "&cPlease enter capture, hatch, or trade only.");
+    if (!type.equals("capture") && !type.equals("hatch") && !type.equals("trade") && !type.equals("release")) {
+       Utilities.sendMessage(command.getSource(), "&cPlease enter a valid log type.");
     } else {
        Concurrency.runAsync(() -> PokeLog.getDatabase().clearLog(type));
-       Utilities.sendMessage(command.getSource(), "&aThe logs for "+ type +" has been cleared.");
+       Utilities.sendMessage(command.getSource(), "&aThe "+ type +" logs has been cleared.");
     }
     return Command.SINGLE_SUCCESS;
   }
