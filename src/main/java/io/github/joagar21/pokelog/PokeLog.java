@@ -21,7 +21,7 @@ public class PokeLog implements ModInitializer {
   
   public static final String MODID = "pokelog";
   public static final String MODNAME = "PokeLog";
-  public static final String MODVERSION = "1.0.1";
+  public static final String MODVERSION = "1.0.2";
   
   private static PokeLog instance;
   private Database database;

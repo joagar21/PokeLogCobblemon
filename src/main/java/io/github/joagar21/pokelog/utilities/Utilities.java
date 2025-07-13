@@ -3,10 +3,14 @@ package io.github.joagar21.pokelog.utilities;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.cobblemon.mod.common.pokemon.Pokemon;
+
 import com.mojang.authlib.GameProfile;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import io.github.joagar21.pokelog.PokeLog;
 
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -31,11 +35,12 @@ public class Utilities {
   public static String getTranslatedText(String type, Identifier identifier) {
     return getTranslatedText(Util.createTranslationKey(type, identifier));
   }
-  public static boolean hasProperties(String source, String... properties) {
-    for (String property : properties) {
-        if (!source.contains(property)) return false;
-    }
-    return true;
+  public static Pokemon getPokemonFromNbt(String nbt) {
+    Pokemon pokemon = new Pokemon();
+    try {
+        pokemon.loadFromNBT(PokeLog.getServer().getRegistryManager(), NbtHelper.fromNbtProviderString(nbt));
+    } catch (CommandSyntaxException e) {}
+    return pokemon;
   }
   public static String getPlayerNameByUUID(String uuid) {
     

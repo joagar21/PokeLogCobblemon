@@ -10,6 +10,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
+import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
+
 import com.google.common.collect.Lists;
 
 import io.github.joagar21.pokelog.PokeLog;
@@ -45,8 +47,8 @@ public class Database {
         statement.execute("CREATE TABLE IF NOT EXISTS capture (" +
         "time INTEGER, " +
         "player TEXT, " +
-        "properties TEXT, " +
-        "PRIMARY KEY (time, player, properties))");
+        "nbt TEXT, " +
+        "PRIMARY KEY (time, player, nbt))");
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to create capture table: "+ e);
     }
@@ -55,8 +57,8 @@ public class Database {
         statement.execute("CREATE TABLE IF NOT EXISTS hatch (" +
         "time INTEGER, " +
         "player TEXT, " +
-        "properties TEXT, " +
-        "PRIMARY KEY (time, player, properties))");
+        "nbt TEXT, " +
+        "PRIMARY KEY (time, player, nbt))");
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to create hatch table: "+ e);
     }
@@ -66,8 +68,8 @@ public class Database {
         "time INTEGER, " +
         "player TEXT, " +
         "traded_to TEXT, " +
-        "properties TEXT, " +
-        "PRIMARY KEY (time, player, traded_to, properties))");
+        "nbt TEXT, " +
+        "PRIMARY KEY (time, player, traded_to, nbt))");
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to create trade table: "+ e);
     }
@@ -76,139 +78,147 @@ public class Database {
         statement.execute("CREATE TABLE IF NOT EXISTS release (" +
         "time INTEGER, " +
         "player TEXT, " +
-        "properties TEXT, " +
-        "PRIMARY KEY (time, player, properties))");
+        "nbt TEXT, " +
+        "PRIMARY KEY (time, player, nbt))");
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to create release table: "+ e);
     }
   }
-  public void addCaptureLog(String player, String properties) {
+  public void addCaptureLog(String player, String nbt) {
     
-    try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO capture (time, player, properties) VALUES (?, ?, ?)")) {
+    try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO capture (time, player, nbt) VALUES (?, ?, ?)")) {
         preparedStatement.setLong(1, System.currentTimeMillis());
         preparedStatement.setString(2, player);
-        preparedStatement.setString(3, properties);
+        preparedStatement.setString(3, nbt);
         preparedStatement.executeUpdate();
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to add capture log for the player "+ player +": "+ e);
     }
   }
-  public void addHatchLog(String player, String properties) {
+  public void addHatchLog(String player, String nbt) {
     
-    try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO hatch (time, player, properties) VALUES (?, ?, ?)")) {
+    try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO hatch (time, player, nbt) VALUES (?, ?, ?)")) {
         preparedStatement.setLong(1, System.currentTimeMillis());
         preparedStatement.setString(2, player);
-        preparedStatement.setString(3, properties);
+        preparedStatement.setString(3, nbt);
         preparedStatement.executeUpdate();
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to add hatch log for the player "+ player +": "+ e);
     }
   }
-  public void addTradeLog(String player, String tradedTo, String properties) {
+  public void addTradeLog(String player, String tradedTo, String nbt) {
     
-    try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO trade (time, player, traded_to, properties) VALUES (?, ?, ?, ?)")) {
+    try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO trade (time, player, traded_to, nbt) VALUES (?, ?, ?, ?)")) {
         preparedStatement.setLong(1, System.currentTimeMillis());
         preparedStatement.setString(2, player);
         preparedStatement.setString(3, tradedTo);
-        preparedStatement.setString(4, properties);
+        preparedStatement.setString(4, nbt);
         preparedStatement.executeUpdate();
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to add trade log for the player "+ player +": "+ e);
     }
   }
-  public void addReleaseLog(String player, String properties) {
+  public void addReleaseLog(String player, String nbt) {
     
-    try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO release (time, player, properties) VALUES (?, ?, ?)")) {
+    try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO release (time, player, nbt) VALUES (?, ?, ?)")) {
         preparedStatement.setLong(1, System.currentTimeMillis());
         preparedStatement.setString(2, player);
-        preparedStatement.setString(3, properties);
+        preparedStatement.setString(3, nbt);
         preparedStatement.executeUpdate();
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to add release log for the player "+ player +": "+ e);
     }
   }
-  public List<CaptureFormat> getCaptureLogs(String filterPlayer, String[] filterProperties) {
+  public List<CaptureFormat> getCaptureLogs(String filterPlayer, PokemonProperties filterProperties) {
     
     String statement = "SELECT * FROM capture ORDER BY time DESC";
     if (!filterPlayer.equals("all")) statement = "SELECT * FROM capture WHERE player = ? ORDER BY time DESC";
     
     List<CaptureFormat> list = Lists.newArrayList();
-    boolean checkProperties = filterProperties[0].equals("all") ? false : true;
     
     try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
         if (!filterPlayer.equals("all")) preparedStatement.setString(1, filterPlayer);
         ResultSet resultSet = preparedStatement.executeQuery();
         
         while (resultSet.next()) {
-          String properties = resultSet.getString("properties");
-          if (checkProperties && !Utilities.hasProperties(properties, filterProperties)) continue;
-          list.add(new CaptureFormat(resultSet.getLong("time"), resultSet.getString("player"), properties)); 
+          if (filterProperties != null) {
+             String nbt = resultSet.getString("nbt");
+             if (filterProperties.matches(Utilities.getPokemonFromNbt(nbt))) list.add(new CaptureFormat(resultSet.getLong("time"), resultSet.getString("player"), nbt));
+          } else {
+             list.add(new CaptureFormat(resultSet.getLong("time"), resultSet.getString("player"), resultSet.getString("nbt"))); 
+          }
         }
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to get capture logs: "+ e);
     }
     return list;
   }
-  public List<HatchFormat> getHatchLogs(String filterPlayer, String[] filterProperties) {
+  public List<HatchFormat> getHatchLogs(String filterPlayer, PokemonProperties filterProperties) {
     
     String statement = "SELECT * FROM hatch ORDER BY time DESC";
     if (!filterPlayer.equals("all")) statement = "SELECT * FROM hatch WHERE player = ? ORDER BY time DESC";
     
     List<HatchFormat> list = Lists.newArrayList();
-    boolean checkProperties = filterProperties[0].equals("all") ? false : true;
     
     try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
         if (!filterPlayer.equals("all")) preparedStatement.setString(1, filterPlayer);
         ResultSet resultSet = preparedStatement.executeQuery();
         
         while (resultSet.next()) {
-          String properties = resultSet.getString("properties");
-          if (checkProperties && !Utilities.hasProperties(properties, filterProperties)) continue;
-          list.add(new HatchFormat(resultSet.getLong("time"), resultSet.getString("player"), properties)); 
+          if (filterProperties != null) {
+             String nbt = resultSet.getString("nbt");
+             if (filterProperties.matches(Utilities.getPokemonFromNbt(nbt))) list.add(new HatchFormat(resultSet.getLong("time"), resultSet.getString("player"), nbt));
+          } else {
+             list.add(new HatchFormat(resultSet.getLong("time"), resultSet.getString("player"), resultSet.getString("nbt"))); 
+          }
         }
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to get hatch logs: "+ e);
     }
     return list;
   }
-  public List<TradeFormat> getTradeLogs(String filterPlayer, String[] filterProperties) {
+  public List<TradeFormat> getTradeLogs(String filterPlayer, PokemonProperties filterProperties) {
     
     String statement = "SELECT * FROM trade ORDER BY time DESC";
     if (!filterPlayer.equals("all")) statement = "SELECT * FROM trade WHERE player = ? ORDER BY time DESC";
     
     List<TradeFormat> list = Lists.newArrayList();
-    boolean checkProperties = filterProperties[0].equals("all") ? false : true;
     
     try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
         if (!filterPlayer.equals("all")) preparedStatement.setString(1, filterPlayer);
         ResultSet resultSet = preparedStatement.executeQuery();
         
         while (resultSet.next()) {
-          String properties = resultSet.getString("properties");
-          if (checkProperties && !Utilities.hasProperties(properties, filterProperties)) continue;
-          list.add(new TradeFormat(resultSet.getLong("time"), resultSet.getString("player"), resultSet.getString("traded_to"), properties)); 
+          if (filterProperties != null) {
+             String nbt = resultSet.getString("nbt");
+             if (filterProperties.matches(Utilities.getPokemonFromNbt(nbt))) list.add(new TradeFormat(resultSet.getLong("time"), resultSet.getString("player"), resultSet.getString("traded_to"), nbt)); 
+          } else {
+             list.add(new TradeFormat(resultSet.getLong("time"), resultSet.getString("player"), resultSet.getString("traded_to"), resultSet.getString("nbt"))); 
+          }
         }
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to get trade logs: "+ e);
     }
     return list;
   }
-  public List<ReleaseFormat> getReleaseLogs(String filterPlayer, String[] filterProperties) {
+  public List<ReleaseFormat> getReleaseLogs(String filterPlayer, PokemonProperties filterProperties) {
     
     String statement = "SELECT * FROM release ORDER BY time DESC";
     if (!filterPlayer.equals("all")) statement = "SELECT * FROM release WHERE player = ? ORDER BY time DESC";
     
     List<ReleaseFormat> list = Lists.newArrayList();
-    boolean checkProperties = filterProperties[0].equals("all") ? false : true;
     
     try (PreparedStatement preparedStatement = connection.prepareStatement(statement)) {
         if (!filterPlayer.equals("all")) preparedStatement.setString(1, filterPlayer);
         ResultSet resultSet = preparedStatement.executeQuery();
         
         while (resultSet.next()) {
-          String properties = resultSet.getString("properties");
-          if (checkProperties && !Utilities.hasProperties(properties, filterProperties)) continue;
-          list.add(new ReleaseFormat(resultSet.getLong("time"), resultSet.getString("player"), properties)); 
+          if (filterProperties != null) {
+             String nbt = resultSet.getString("nbt");
+             if (filterProperties.matches(Utilities.getPokemonFromNbt(nbt))) list.add(new ReleaseFormat(resultSet.getLong("time"), resultSet.getString("player"), nbt));
+          } else {
+             list.add(new ReleaseFormat(resultSet.getLong("time"), resultSet.getString("player"), resultSet.getString("nbt"))); 
+          }
         }
     } catch (SQLException e) {
         PokeLog.getLogger().error("Failed to get release logs: "+ e);

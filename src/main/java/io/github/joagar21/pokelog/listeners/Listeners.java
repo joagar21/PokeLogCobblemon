@@ -2,13 +2,14 @@ package io.github.joagar21.pokelog.listeners;
 
 import com.cobblemon.mod.common.api.Priority;
 import com.cobblemon.mod.common.api.events.CobblemonEvents;
-import com.cobblemon.mod.common.api.pokemon.PokemonPropertyExtractor;
 
 import io.github.joagar21.pokelog.PokeLog;
 import io.github.joagar21.pokelog.configurations.Main;
 import io.github.joagar21.pokelog.utilities.Concurrency;
 
 import kotlin.Unit;
+
+import net.minecraft.nbt.NbtCompound;
 
 public class Listeners {
 
@@ -18,8 +19,8 @@ public class Listeners {
       String player = event.getPlayer().getUuidAsString();
       
       if (!Main.INSTANCE.PlayerWhitelist.contains(player)) {
-         String properties = event.getPokemon().createPokemonProperties(PokemonPropertyExtractor.ALL).asString(" ");
-         Concurrency.runAsync(() -> PokeLog.getDatabase().addReleaseLog(player, properties));
+         NbtCompound nbt = event.getPokemon().saveToNBT(PokeLog.getServer().getRegistryManager(), new NbtCompound());
+         Concurrency.runAsync(() -> PokeLog.getDatabase().addReleaseLog(player, nbt.toString()));
       }
       return Unit.INSTANCE;
     });
@@ -28,8 +29,8 @@ public class Listeners {
       String player = event.getPlayer().getUuidAsString();
       
       if (!Main.INSTANCE.PlayerWhitelist.contains(player)) {
-         String properties = event.getPokemon().createPokemonProperties(PokemonPropertyExtractor.ALL).asString(" ");
-         Concurrency.runAsync(() -> PokeLog.getDatabase().addCaptureLog(player, properties));
+         NbtCompound nbt = event.getPokemon().saveToNBT(PokeLog.getServer().getRegistryManager(), new NbtCompound());
+         Concurrency.runAsync(() -> PokeLog.getDatabase().addCaptureLog(player, nbt.toString()));
       }
       return Unit.INSTANCE;
     });
@@ -38,8 +39,8 @@ public class Listeners {
       String player = event.getPlayer().getUuidAsString();
       
       if (!Main.INSTANCE.PlayerWhitelist.contains(player)) {
-         String properties = event.getEgg().asString(" ");
-         Concurrency.runAsync(() -> PokeLog.getDatabase().addHatchLog(player, properties));
+         NbtCompound nbt = event.getEgg().saveToNBT(PokeLog.getServer().getRegistryManager());
+         Concurrency.runAsync(() -> PokeLog.getDatabase().addHatchLog(player, nbt.toString()));
       }
       return Unit.INSTANCE;
     });
@@ -51,12 +52,12 @@ public class Listeners {
       if (Main.INSTANCE.PlayerWhitelist.contains(participant1) || Main.INSTANCE.PlayerWhitelist.contains(participant2)) {
          return Unit.INSTANCE;
       }
-      String participant1SentPokemon = event.getTradeParticipant2Pokemon().createPokemonProperties(PokemonPropertyExtractor.ALL).asString(" ");
-      String participant2SentPokemon = event.getTradeParticipant1Pokemon().createPokemonProperties(PokemonPropertyExtractor.ALL).asString(" ");
+      NbtCompound participant1SentPokemon = event.getTradeParticipant2Pokemon().saveToNBT(PokeLog.getServer().getRegistryManager(), new NbtCompound());
+      NbtCompound participant2SentPokemon = event.getTradeParticipant1Pokemon().saveToNBT(PokeLog.getServer().getRegistryManager(), new NbtCompound());
       
       Concurrency.runAsync(() -> {
-        PokeLog.getDatabase().addTradeLog(participant1, participant2, participant1SentPokemon);
-        PokeLog.getDatabase().addTradeLog(participant2, participant1, participant2SentPokemon);
+        PokeLog.getDatabase().addTradeLog(participant1, participant2, participant1SentPokemon.toString());
+        PokeLog.getDatabase().addTradeLog(participant2, participant1, participant2SentPokemon.toString());
       });
       return Unit.INSTANCE;
     });

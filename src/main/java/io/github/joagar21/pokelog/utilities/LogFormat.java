@@ -6,12 +6,12 @@ public class LogFormat {
     
     private long time;
     private String player;
-    private String properties;
+    private String nbt;
     
-    public CaptureFormat(long time, String player, String properties) {
+    public CaptureFormat(long time, String player, String nbt) {
       this.time = time;
       this.player = player;
-      this.properties = properties;
+      this.nbt = nbt;
     }
     public long getTime() {
       return time;
@@ -25,23 +25,23 @@ public class LogFormat {
     public void setPlayer(String player) {
       this.player = player;
     }
-    public String getProperties() {
-      return properties;
+    public String getNbt() {
+      return nbt;
     }
-    public void setProperties(String properties) {
-      this.properties = properties;
+    public void setNbt(String nbt) {
+      this.nbt = nbt;
     }
   }
   public static class HatchFormat {
     
     private long time;
     private String player;
-    private String properties;
+    private String nbt;
     
-    public HatchFormat(long time, String player, String properties) {
+    public HatchFormat(long time, String player, String nbt) {
       this.time = time;
       this.player = player;
-      this.properties = properties;
+      this.nbt = nbt;
     }
     public long getTime() {
       return time;
@@ -55,11 +55,11 @@ public class LogFormat {
     public void setPlayer(String player) {
       this.player = player;
     }
-    public String getProperties() {
-      return properties;
+    public String getNbt() {
+      return nbt;
     }
-    public void setProperties(String properties) {
-      this.properties = properties;
+    public void setNbt(String nbt) {
+      this.nbt = nbt;
     }
   }
   public static class TradeFormat {
@@ -67,13 +67,13 @@ public class LogFormat {
     private long time;
     private String player;
     private String tradedTo;
-    private String properties;
+    private String nbt;
     
-    public TradeFormat(long time, String player, String tradedTo, String properties) {
+    public TradeFormat(long time, String player, String tradedTo, String nbt) {
       this.time = time;
       this.player = player;
       this.tradedTo = tradedTo;
-      this.properties = properties;
+      this.nbt = nbt;
     }
     public long getTime() {
       return time;
@@ -93,23 +93,23 @@ public class LogFormat {
     public void setTradedTo(String tradedTo) {
       this.tradedTo = tradedTo;
     }
-    public String getProperties() {
-      return properties;
+    public String getNbt() {
+      return nbt;
     }
-    public void setProperties(String properties) {
-      this.properties = properties;
+    public void setNbt(String nbt) {
+      this.nbt = nbt;
     }
   }
   public static class ReleaseFormat {
     
     private long time;
     private String player;
-    private String properties;
+    private String nbt;
     
-    public ReleaseFormat(long time, String player, String properties) {
+    public ReleaseFormat(long time, String player, String nbt) {
       this.time = time;
       this.player = player;
-      this.properties = properties;
+      this.nbt = nbt;
     }
     public long getTime() {
       return time;
@@ -123,11 +123,11 @@ public class LogFormat {
     public void setPlayer(String player) {
       this.player = player;
     }
-    public String getProperties() {
-      return properties;
+    public String getNbt() {
+      return nbt;
     }
-    public void setProperties(String properties) {
-      this.properties = properties;
+    public void setNbt(String nbt) {
+      this.nbt = nbt;
     }
   }
 }

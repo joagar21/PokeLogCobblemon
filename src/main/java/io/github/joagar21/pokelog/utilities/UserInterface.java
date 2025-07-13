@@ -46,7 +46,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 public class UserInterface {
   
-  public static void open(String type, String filterPlayer, String filterProperties, ServerPlayerEntity player) {
+  public static void open(String type, String filterPlayer, PokemonProperties filterProperties, ServerPlayerEntity player) {
     
     ChestTemplate template = ChestTemplate.builder(UIConfiguration.INSTANCE.UserInterfaceRows).fill(new PlaceholderButton()).build();
     
@@ -78,7 +78,7 @@ public class UserInterface {
     LinkedPage page = PaginationHelper.createPagesFromPlaceholders(template, getLogButtons(type, filterPlayer, filterProperties, player), builder);
     PokeLog.getServer().execute(() -> UIManager.openUIForcefully(player, page));
   }
-  private static List<Button> getLogButtons(String type, String filterPlayer, String filterProperties, ServerPlayerEntity player) {
+  private static List<Button> getLogButtons(String type, String filterPlayer, PokemonProperties filterProperties, ServerPlayerEntity player) {
     
     List<Button> buttons = Lists.newArrayList();
     SimpleDateFormat dateFormat = new SimpleDateFormat(Main.INSTANCE.TimeFormat);
@@ -89,8 +89,8 @@ public class UserInterface {
        if (profile.isPresent()) filterPlayer = profile.get().getId().toString();
     }
     if (type.equals("capture")) {
-       for (CaptureFormat format : PokeLog.getDatabase().getCaptureLogs(filterPlayer, filterProperties.split(" "))) {
-           Pokemon pokemon = PokemonProperties.Companion.parse(format.getProperties()).create();
+       for (CaptureFormat format : PokeLog.getDatabase().getCaptureLogs(filterPlayer, filterProperties)) {
+           Pokemon pokemon = Utilities.getPokemonFromNbt(format.getNbt());
            
            buttons.add(GooeyButton.builder()
            .display(ItemStackBuilder.builder()
@@ -106,8 +106,8 @@ public class UserInterface {
        }
     }
     else if (type.equals("hatch")) {
-       for (HatchFormat format : PokeLog.getDatabase().getHatchLogs(filterPlayer, filterProperties.split(" "))) {
-           Pokemon pokemon = PokemonProperties.Companion.parse(format.getProperties()).create();
+       for (HatchFormat format : PokeLog.getDatabase().getHatchLogs(filterPlayer, filterProperties)) {
+           Pokemon pokemon = Utilities.getPokemonFromNbt(format.getNbt());
            
            buttons.add(GooeyButton.builder()
            .display(ItemStackBuilder.builder()
@@ -123,8 +123,8 @@ public class UserInterface {
        }
     }
     else if (type.equals("trade")) {
-       for (TradeFormat format : PokeLog.getDatabase().getTradeLogs(filterPlayer, filterProperties.split(" "))) {
-           Pokemon pokemon = PokemonProperties.Companion.parse(format.getProperties()).create();
+       for (TradeFormat format : PokeLog.getDatabase().getTradeLogs(filterPlayer, filterProperties)) {
+           Pokemon pokemon = Utilities.getPokemonFromNbt(format.getNbt());
            
            buttons.add(GooeyButton.builder()
            .display(ItemStackBuilder.builder()
@@ -140,8 +140,8 @@ public class UserInterface {
        }
     }
     else if (type.equals("release")) {
-       for (ReleaseFormat format : PokeLog.getDatabase().getReleaseLogs(filterPlayer, filterProperties.split(" "))) {
-           Pokemon pokemon = PokemonProperties.Companion.parse(format.getProperties()).create();
+       for (ReleaseFormat format : PokeLog.getDatabase().getReleaseLogs(filterPlayer, filterProperties)) {
+           Pokemon pokemon = Utilities.getPokemonFromNbt(format.getNbt());
            
            buttons.add(GooeyButton.builder()
            .display(ItemStackBuilder.builder()

@@ -1,7 +1,7 @@
 {
 	"schemaVersion": 1,
 	"id": "pokelog",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"name": "PokeLog",
 	"description": "A fabric plugin.",
 	"authors": ["joagar"],
