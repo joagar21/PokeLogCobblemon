@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import io.github.joagar21.pokelog.listeners.Listeners;
 import io.github.joagar21.pokelog.commands.Base;
 import io.github.joagar21.pokelog.configurations.Database;
-import io.github.joagar21.pokelog.configurations.Main;
+import io.github.joagar21.pokelog.configurations.MainConfig;
 import io.github.joagar21.pokelog.configurations.UIConfiguration;
 
 import net.fabricmc.api.ModInitializer;
@@ -33,9 +33,9 @@ public class PokeLog implements ModInitializer {
     instance = this;
     
     logger.info(MODNAME + " is now loading database and configurations.");
-    loadDatabase();
-    Main.load();
+    MainConfig.load();
     UIConfiguration.load();
+    loadDatabase();
     
     logger.info(MODNAME + " is now registering events and commands.");
     Listeners.register();

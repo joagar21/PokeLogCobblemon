@@ -8,7 +8,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 
 import io.github.joagar21.pokelog.PokeLog;
-import io.github.joagar21.pokelog.configurations.Main;
+import io.github.joagar21.pokelog.configurations.MainConfig;
 import io.github.joagar21.pokelog.utilities.Permissions;
 
 import net.minecraft.command.CommandRegistryAccess;
@@ -19,7 +19,7 @@ public class Base {
   
   public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registry, CommandManager.RegistrationEnvironment environment) {
     
-    for (String commandAlias : Main.INSTANCE.CommandAlias) {
+    for (String commandAlias : MainConfig.INSTANCE.CommandAlias) {
         dispatcher.register(
           CommandManager.literal(commandAlias)
           .executes(command -> execute(command))
