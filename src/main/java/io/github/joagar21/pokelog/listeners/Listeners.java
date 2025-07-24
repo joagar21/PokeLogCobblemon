@@ -4,7 +4,7 @@ import com.cobblemon.mod.common.api.Priority;
 import com.cobblemon.mod.common.api.events.CobblemonEvents;
 
 import io.github.joagar21.pokelog.PokeLog;
-import io.github.joagar21.pokelog.configurations.Main;
+import io.github.joagar21.pokelog.configurations.MainConfig;
 import io.github.joagar21.pokelog.utilities.Concurrency;
 
 import kotlin.Unit;
@@ -18,7 +18,7 @@ public class Listeners {
     CobblemonEvents.POKEMON_RELEASED_EVENT_POST.subscribe(Priority.NORMAL, event -> {
       String player = event.getPlayer().getUuidAsString();
       
-      if (!Main.INSTANCE.PlayerWhitelist.contains(player)) {
+      if (!MainConfig.INSTANCE.PlayerWhitelist.contains(player)) {
          NbtCompound nbt = event.getPokemon().saveToNBT(PokeLog.getServer().getRegistryManager(), new NbtCompound());
          Concurrency.runAsync(() -> PokeLog.getDatabase().addReleaseLog(player, nbt.toString()));
       }
@@ -28,7 +28,7 @@ public class Listeners {
     CobblemonEvents.POKEMON_CAPTURED.subscribe(Priority.NORMAL, event -> {
       String player = event.getPlayer().getUuidAsString();
       
-      if (!Main.INSTANCE.PlayerWhitelist.contains(player)) {
+      if (!MainConfig.INSTANCE.PlayerWhitelist.contains(player)) {
          NbtCompound nbt = event.getPokemon().saveToNBT(PokeLog.getServer().getRegistryManager(), new NbtCompound());
          Concurrency.runAsync(() -> PokeLog.getDatabase().addCaptureLog(player, nbt.toString()));
       }
@@ -38,7 +38,7 @@ public class Listeners {
     CobblemonEvents.HATCH_EGG_POST.subscribe(Priority.NORMAL, event -> {
       String player = event.getPlayer().getUuidAsString();
       
-      if (!Main.INSTANCE.PlayerWhitelist.contains(player)) {
+      if (!MainConfig.INSTANCE.PlayerWhitelist.contains(player)) {
          NbtCompound nbt = event.getEgg().saveToNBT(PokeLog.getServer().getRegistryManager());
          Concurrency.runAsync(() -> PokeLog.getDatabase().addHatchLog(player, nbt.toString()));
       }
@@ -49,7 +49,7 @@ public class Listeners {
       String participant1 = event.getTradeParticipant1().getUuid().toString();
       String participant2 = event.getTradeParticipant2().getUuid().toString();
       
-      if (Main.INSTANCE.PlayerWhitelist.contains(participant1) || Main.INSTANCE.PlayerWhitelist.contains(participant2)) {
+      if (MainConfig.INSTANCE.PlayerWhitelist.contains(participant1) || MainConfig.INSTANCE.PlayerWhitelist.contains(participant2)) {
          return Unit.INSTANCE;
       }
       NbtCompound participant1SentPokemon = event.getTradeParticipant2Pokemon().saveToNBT(PokeLog.getServer().getRegistryManager(), new NbtCompound());

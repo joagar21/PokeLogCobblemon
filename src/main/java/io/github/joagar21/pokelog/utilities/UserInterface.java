@@ -33,7 +33,7 @@ import ca.landonjw.gooeylibs2.api.page.LinkedPage.Builder;
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate;
 
 import io.github.joagar21.pokelog.PokeLog;
-import io.github.joagar21.pokelog.configurations.Main;
+import io.github.joagar21.pokelog.configurations.MainConfig;
 import io.github.joagar21.pokelog.configurations.UIConfiguration;
 import io.github.joagar21.pokelog.configurations.UIConfiguration.UserInterfaceFormat;
 import io.github.joagar21.pokelog.utilities.LogFormat.CaptureFormat;
@@ -43,6 +43,7 @@ import io.github.joagar21.pokelog.utilities.LogFormat.TradeFormat;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 
 public class UserInterface {
   
@@ -81,8 +82,8 @@ public class UserInterface {
   private static List<Button> getLogButtons(String type, String filterPlayer, PokemonProperties filterProperties, ServerPlayerEntity player) {
     
     List<Button> buttons = Lists.newArrayList();
-    SimpleDateFormat dateFormat = new SimpleDateFormat(Main.INSTANCE.TimeFormat);
-    dateFormat.setTimeZone(TimeZone.getTimeZone(Main.INSTANCE.TimeZone));
+    SimpleDateFormat dateFormat = new SimpleDateFormat(MainConfig.INSTANCE.TimeFormat);
+    dateFormat.setTimeZone(TimeZone.getTimeZone(MainConfig.INSTANCE.TimeZone));
     
     if (!filterPlayer.equals("all")) {
        Optional<GameProfile> profile = PokeLog.getServer().getUserCache().findByName(filterPlayer);
@@ -100,7 +101,11 @@ public class UserInterface {
              .build())
            .onClick(() -> {
              UIManager.closeUI(player);
-             Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
+             if(Permissions.hasPermission(Permissions.RETRIEVE_POKEMON, player)){
+                 Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
+             } else {
+                 Utilities.sendMessage(player, UIConfiguration.INSTANCE.NoPermission);
+             }
            })
            .build());
        }
@@ -115,10 +120,14 @@ public class UserInterface {
              .name(UIConfiguration.INSTANCE.LogPokemonSpriteTitle.replace("%player%", Utilities.getPlayerNameByUUID(format.getPlayer())).replace("%date%", dateFormat.format(new Date(format.getTime()))))
              .lore(UIConfiguration.INSTANCE.PokemonSpriteLore.stream().map(s -> parsePokemonPlaceholders(s, pokemon)).toList())
              .build())
-           .onClick(() -> {
-             UIManager.closeUI(player);
-             Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
-           })
+                   .onClick(() -> {
+                       UIManager.closeUI(player);
+                       if(Permissions.hasPermission(Permissions.RETRIEVE_POKEMON, player)){
+                           Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
+                       } else {
+                           Utilities.sendMessage(player, UIConfiguration.INSTANCE.NoPermission);
+                       }
+                   })
            .build());
        }
     }
@@ -132,10 +141,14 @@ public class UserInterface {
              .name(UIConfiguration.INSTANCE.TradeLogPokemonSpriteTitle.replace("%player%", Utilities.getPlayerNameByUUID(format.getPlayer())).replace("%traded_to%", Utilities.getPlayerNameByUUID(format.getTradedTo())).replace("%date%", dateFormat.format(new Date(format.getTime()))))
              .lore(UIConfiguration.INSTANCE.PokemonSpriteLore.stream().map(s -> parsePokemonPlaceholders(s, pokemon)).toList())
              .build())
-           .onClick(() -> {
-             UIManager.closeUI(player);
-             Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
-           })
+                   .onClick(() -> {
+                       UIManager.closeUI(player);
+                       if(Permissions.hasPermission(Permissions.RETRIEVE_POKEMON, player)){
+                           Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
+                       } else {
+                           Utilities.sendMessage(player, UIConfiguration.INSTANCE.NoPermission);
+                       }
+                   })
            .build());
        }
     }
@@ -149,10 +162,14 @@ public class UserInterface {
              .name(UIConfiguration.INSTANCE.LogPokemonSpriteTitle.replace("%player%", Utilities.getPlayerNameByUUID(format.getPlayer())).replace("%date%", dateFormat.format(new Date(format.getTime()))))
              .lore(UIConfiguration.INSTANCE.PokemonSpriteLore.stream().map(s -> parsePokemonPlaceholders(s, pokemon)).toList())
              .build())
-           .onClick(() -> {
-             UIManager.closeUI(player);
-             Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
-           })
+                   .onClick(() -> {
+                       UIManager.closeUI(player);
+                       if(Permissions.hasPermission(Permissions.RETRIEVE_POKEMON, player)){
+                           Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
+                       } else {
+                           Utilities.sendMessage(player, UIConfiguration.INSTANCE.NoPermission);
+                       }
+                   })
            .build());
        }
     }

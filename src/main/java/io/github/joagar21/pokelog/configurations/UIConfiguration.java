@@ -21,6 +21,7 @@ public class UIConfiguration {
   public static UIConfiguration INSTANCE = new UIConfiguration();
   
   public String NoneText = "&bNone";
+  public String NoPermission = "&cYou don't have permission for execute this action.";
   public String HiddenAbilityText = " &b(Hidden Ability)";
   public String LogPokemonSpriteTitle = "&a%player% (%date%)";
   public String TradeLogPokemonSpriteTitle = "&a%player% traded to %traded_to% (%date%)";

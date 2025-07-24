@@ -4,7 +4,7 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 
 import io.github.joagar21.pokelog.PokeLog;
-import io.github.joagar21.pokelog.configurations.Main;
+import io.github.joagar21.pokelog.configurations.MainConfig;
 import io.github.joagar21.pokelog.utilities.Permissions;
 import io.github.joagar21.pokelog.utilities.Texts;
 import io.github.joagar21.pokelog.utilities.Utilities;
@@ -20,13 +20,13 @@ public class Info {
     ServerCommandSource source = command.getSource();
     Utilities.sendMessage(source, "&6====================[&a&l Info &6]=======================");
     Utilities.sendMessage(source, "&eVersion: "+ PokeLog.MODVERSION);
-    Utilities.sendMessage(source, "&eDeveloped by: joagar");
+    Utilities.sendMessage(source, "&eDeveloped by: joagar support MariaDB by Pepefab");
     source.sendMessage(Texts.color("&eDiscord Server: https://discord.gg/764EeQh").copy()
     .styled(style -> style.withClickEvent(new ClickEvent(Action.OPEN_URL, "https://discord.gg/764EeQh"))));
     Utilities.sendMessage(source,"&6==================================================");
     
     Utilities.sendMessage(source, " ");
-    String commandName = Main.INSTANCE.CommandAlias.getFirst();
+    String commandName = MainConfig.INSTANCE.CommandAlias.getFirst();
     
     Utilities.sendMessage(source, "&6==================[&a&l Commands &6]====================");
     Utilities.sendMessage(source, "&e/"+ commandName +" info");
