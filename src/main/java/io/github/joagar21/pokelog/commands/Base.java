@@ -59,15 +59,15 @@ public class Base {
                 builder.suggest("release");
                 return builder.buildFuture();
               })
-            .then(CommandManager.argument("filterPlayer", StringArgumentType.string())
+            .then(CommandManager.argument("player", StringArgumentType.string())
               .suggests((command, builder) -> {
                 builder.suggest("all");
                 PokeLog.getServer().getPlayerManager().getPlayerList().forEach(player -> builder.suggest(player.getName().getString()));
                 return builder.buildFuture();
               })
-            .then(CommandManager.argument("filterProperties", StringArgumentType.greedyString())
+            .then(CommandManager.argument("pokemonProperties", StringArgumentType.greedyString())
               .suggests((command, builder) -> {
-                builder.suggest("all");
+                builder.suggest("any");
                 PokemonPropertiesArgumentType.Companion.properties().listSuggestions(command, builder);
                 return builder.buildFuture();
               })

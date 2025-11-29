@@ -21,7 +21,7 @@ public class PokeLog implements ModInitializer {
   
   public static final String MODID = "pokelog";
   public static final String MODNAME = "PokeLog";
-  public static final String MODVERSION = "1.0.2";
+  public static final String MODVERSION = "1.1.0";
   
   private static PokeLog instance;
   private Database database;
@@ -32,10 +32,10 @@ public class PokeLog implements ModInitializer {
   public void onInitialize() {
     instance = this;
     
-    logger.info(MODNAME + " is now loading database and configurations.");
-    loadDatabase();
+    logger.info(MODNAME + " is now loading configurations and database.");
     Main.load();
     UIConfiguration.load();
+    loadDatabase();
     
     logger.info(MODNAME + " is now registering events and commands.");
     Listeners.register();

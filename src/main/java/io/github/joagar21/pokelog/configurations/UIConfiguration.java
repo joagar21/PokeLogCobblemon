@@ -44,6 +44,11 @@ public class UIConfiguration {
   " ",
   "&6Moves: &b%move_1%&7/&b%move_2%&7/&b%move_3%&7/&b%move_4%",
   " ",
+  "&6World: &b%world%",
+  "&6Position X: &b%pos_x%",
+  "&6Position Y: &b%pos_y%",
+  "&6Position Z: &b%pos_z%",
+  " ",
   "&7Click to retrieve the pokemon.");
   
   public int UserInterfaceRows = 6;

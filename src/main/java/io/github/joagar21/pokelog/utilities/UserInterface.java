@@ -36,9 +36,7 @@ import io.github.joagar21.pokelog.PokeLog;
 import io.github.joagar21.pokelog.configurations.Main;
 import io.github.joagar21.pokelog.configurations.UIConfiguration;
 import io.github.joagar21.pokelog.configurations.UIConfiguration.UserInterfaceFormat;
-import io.github.joagar21.pokelog.utilities.LogFormat.CaptureFormat;
-import io.github.joagar21.pokelog.utilities.LogFormat.HatchFormat;
-import io.github.joagar21.pokelog.utilities.LogFormat.ReleaseFormat;
+import io.github.joagar21.pokelog.utilities.LogFormat.BaseFormat;
 import io.github.joagar21.pokelog.utilities.LogFormat.TradeFormat;
 
 import net.minecraft.item.ItemStack;
@@ -46,7 +44,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 public class UserInterface {
   
-  public static void open(String type, String filterPlayer, PokemonProperties filterProperties, ServerPlayerEntity player) {
+  public static void open(String type, String targetPlayer, PokemonProperties pokemonProperties, ServerPlayerEntity player) {
     
     ChestTemplate template = ChestTemplate.builder(UIConfiguration.INSTANCE.UserInterfaceRows).fill(new PlaceholderButton()).build();
     
@@ -75,83 +73,53 @@ public class UserInterface {
         }
     }
     Builder builder = LinkedPage.builder().title(Texts.color(UIConfiguration.INSTANCE.UserInterfaceTitle.replace("%type%", Utilities.capitalizeFirstLetter(type))));
-    LinkedPage page = PaginationHelper.createPagesFromPlaceholders(template, getLogButtons(type, filterPlayer, filterProperties, player), builder);
+    LinkedPage page = PaginationHelper.createPagesFromPlaceholders(template, getLogButtons(type, targetPlayer, pokemonProperties, player), builder);
     PokeLog.getServer().execute(() -> UIManager.openUIForcefully(player, page));
   }
-  private static List<Button> getLogButtons(String type, String filterPlayer, PokemonProperties filterProperties, ServerPlayerEntity player) {
+  private static List<Button> getLogButtons(String type, String targetPlayer, PokemonProperties pokemonProperties, ServerPlayerEntity player) {
     
     List<Button> buttons = Lists.newArrayList();
     SimpleDateFormat dateFormat = new SimpleDateFormat(Main.INSTANCE.TimeFormat);
     dateFormat.setTimeZone(TimeZone.getTimeZone(Main.INSTANCE.TimeZone));
     
-    if (!filterPlayer.equals("all")) {
-       Optional<GameProfile> profile = PokeLog.getServer().getUserCache().findByName(filterPlayer);
-       if (profile.isPresent()) filterPlayer = profile.get().getId().toString();
+    if (!targetPlayer.equals("all")) {
+       Optional<GameProfile> profile = PokeLog.getServer().getUserCache().findByName(targetPlayer);
+       if (profile.isPresent()) targetPlayer = profile.get().getId().toString();
     }
-    if (type.equals("capture")) {
-       for (CaptureFormat format : PokeLog.getDatabase().getCaptureLogs(filterPlayer, filterProperties)) {
+    if (type.equals("capture") || type.equals("hatch") || type.equals("release")) {
+       for (BaseFormat format : PokeLog.getDatabase().getLogs(type, targetPlayer, pokemonProperties)) {
            Pokemon pokemon = Utilities.getPokemonFromNbt(format.getNbt());
            
            buttons.add(GooeyButton.builder()
            .display(ItemStackBuilder.builder()
              .stack(PokemonItem.from(pokemon))
              .name(UIConfiguration.INSTANCE.LogPokemonSpriteTitle.replace("%player%", Utilities.getPlayerNameByUUID(format.getPlayer())).replace("%date%", dateFormat.format(new Date(format.getTime()))))
-             .lore(UIConfiguration.INSTANCE.PokemonSpriteLore.stream().map(s -> parsePokemonPlaceholders(s, pokemon)).toList())
+             .lore(UIConfiguration.INSTANCE.PokemonSpriteLore.stream().map(s -> parsePokemonPlaceholders(s, pokemon, format.getExtra())).toList())
              .build())
            .onClick(() -> {
-             UIManager.closeUI(player);
-             Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
-           })
-           .build());
-       }
-    }
-    else if (type.equals("hatch")) {
-       for (HatchFormat format : PokeLog.getDatabase().getHatchLogs(filterPlayer, filterProperties)) {
-           Pokemon pokemon = Utilities.getPokemonFromNbt(format.getNbt());
-           
-           buttons.add(GooeyButton.builder()
-           .display(ItemStackBuilder.builder()
-             .stack(PokemonItem.from(pokemon))
-             .name(UIConfiguration.INSTANCE.LogPokemonSpriteTitle.replace("%player%", Utilities.getPlayerNameByUUID(format.getPlayer())).replace("%date%", dateFormat.format(new Date(format.getTime()))))
-             .lore(UIConfiguration.INSTANCE.PokemonSpriteLore.stream().map(s -> parsePokemonPlaceholders(s, pokemon)).toList())
-             .build())
-           .onClick(() -> {
-             UIManager.closeUI(player);
-             Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
+             if (Permissions.hasPermission(Permissions.RETRIEVE, player)) {
+                UIManager.closeUI(player);
+                Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
+             }
            })
            .build());
        }
     }
     else if (type.equals("trade")) {
-       for (TradeFormat format : PokeLog.getDatabase().getTradeLogs(filterPlayer, filterProperties)) {
+       for (TradeFormat format : PokeLog.getDatabase().getTradeLogs(targetPlayer, pokemonProperties)) {
            Pokemon pokemon = Utilities.getPokemonFromNbt(format.getNbt());
            
            buttons.add(GooeyButton.builder()
            .display(ItemStackBuilder.builder()
              .stack(PokemonItem.from(pokemon))
              .name(UIConfiguration.INSTANCE.TradeLogPokemonSpriteTitle.replace("%player%", Utilities.getPlayerNameByUUID(format.getPlayer())).replace("%traded_to%", Utilities.getPlayerNameByUUID(format.getTradedTo())).replace("%date%", dateFormat.format(new Date(format.getTime()))))
-             .lore(UIConfiguration.INSTANCE.PokemonSpriteLore.stream().map(s -> parsePokemonPlaceholders(s, pokemon)).toList())
+             .lore(UIConfiguration.INSTANCE.PokemonSpriteLore.stream().map(s -> parsePokemonPlaceholders(s, pokemon, format.getExtra())).toList())
              .build())
            .onClick(() -> {
-             UIManager.closeUI(player);
-             Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
-           })
-           .build());
-       }
-    }
-    else if (type.equals("release")) {
-       for (ReleaseFormat format : PokeLog.getDatabase().getReleaseLogs(filterPlayer, filterProperties)) {
-           Pokemon pokemon = Utilities.getPokemonFromNbt(format.getNbt());
-           
-           buttons.add(GooeyButton.builder()
-           .display(ItemStackBuilder.builder()
-             .stack(PokemonItem.from(pokemon))
-             .name(UIConfiguration.INSTANCE.LogPokemonSpriteTitle.replace("%player%", Utilities.getPlayerNameByUUID(format.getPlayer())).replace("%date%", dateFormat.format(new Date(format.getTime()))))
-             .lore(UIConfiguration.INSTANCE.PokemonSpriteLore.stream().map(s -> parsePokemonPlaceholders(s, pokemon)).toList())
-             .build())
-           .onClick(() -> {
-             UIManager.closeUI(player);
-             Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
+             if (Permissions.hasPermission(Permissions.RETRIEVE, player)) {
+                UIManager.closeUI(player);
+                Cobblemon.INSTANCE.getStorage().getParty(player).add(pokemon);
+             }
            })
            .build());
        }
@@ -185,11 +153,12 @@ public class UserInterface {
     .filter(potentialAbility -> potentialAbility.getType() == HiddenAbilityType.INSTANCE)
     .anyMatch(potentialAbility -> potentialAbility.getTemplate() == pokemon.getAbility().getTemplate());
   }
-  private static String parsePokemonPlaceholders(String str, Pokemon pokemon) {
+  private static String parsePokemonPlaceholders(String str, Pokemon pokemon, String extra) {
     
     IVs ivs = pokemon.getIvs();
     EVs evs = pokemon.getEvs();
     MoveSet moves = pokemon.getMoveSet();
+    String[] split = extra.split("\\|\\|");
     
     return str
     .replace("%pokemon%", pokemon.getSpecies().getTranslatedName().getString())
@@ -221,6 +190,10 @@ public class UserInterface {
     .replace("%move_1%", moves.get(0) == null ? UIConfiguration.INSTANCE.NoneText : moves.get(0).getDisplayName().getString())
     .replace("%move_2%", moves.get(1) == null ? UIConfiguration.INSTANCE.NoneText : moves.get(1).getDisplayName().getString())
     .replace("%move_3%", moves.get(2) == null ? UIConfiguration.INSTANCE.NoneText : moves.get(2).getDisplayName().getString())
-    .replace("%move_4%", moves.get(3) == null ? UIConfiguration.INSTANCE.NoneText : moves.get(3).getDisplayName().getString());
+    .replace("%move_4%", moves.get(3) == null ? UIConfiguration.INSTANCE.NoneText : moves.get(3).getDisplayName().getString())
+    .replace("%world%", split[0])
+    .replace("%pos_x%", split[1])
+    .replace("%pos_y%", split[2])
+    .replace("%pos_z%", split[3]);
   }
 }

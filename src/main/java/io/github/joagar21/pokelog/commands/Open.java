@@ -23,11 +23,11 @@ public class Open {
     if (!type.equals("capture") && !type.equals("hatch") && !type.equals("trade") && !type.equals("release")) {
        Utilities.sendMessage(player, "&cPlease enter a valid log type.");
     } else {
-       String filterPlayer = StringArgumentType.getString(command, "filterPlayer");
-       String filterProperties = StringArgumentType.getString(command, "filterProperties");
+       String targetPlayer = StringArgumentType.getString(command, "player");
+       String pokemonProperties = StringArgumentType.getString(command, "pokemonProperties");
        
-       Utilities.sendMessage(player, "&aFetching "+ filterPlayer +" "+ type +" logs...");
-       Concurrency.runAsync(() -> UserInterface.open(type, StringArgumentType.getString(command, "filterPlayer"), filterProperties.equals("all") ? null : PokemonProperties.Companion.parse(filterProperties), player));
+       Utilities.sendMessage(player, "&aFetching "+ type +" logs from player "+ targetPlayer +" with "+ pokemonProperties +" pokemon properties...");
+       Concurrency.runAsync(() -> UserInterface.open(type, targetPlayer, PokemonProperties.Companion.parse(pokemonProperties), player));
     }
     return Command.SINGLE_SUCCESS;
   }

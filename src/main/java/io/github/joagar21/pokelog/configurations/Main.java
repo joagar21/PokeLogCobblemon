@@ -19,6 +19,12 @@ public class Main {
   public static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
   public static Main INSTANCE = new Main();
   
+  public boolean UseSqlite = true;
+  public String DatabaseName = "pokelog";
+  public String DatabaseAddress = "localhost:3306";
+  public String DatabaseUserName = "root";
+  public String DatabasePassword = "password";
+  
   public List<String> CommandAlias = Lists.newArrayList("pokelog","plog");
   public String TimeZone = "GMT+8";
   public String TimeFormat = "h:mm a M/d/yyyy";
